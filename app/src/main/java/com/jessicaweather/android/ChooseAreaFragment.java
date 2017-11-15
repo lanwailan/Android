@@ -2,6 +2,7 @@ package com.jessicaweather.android;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 import com.jessicaweather.android.db.City;
 import com.jessicaweather.android.db.Country;
 import com.jessicaweather.android.db.Provice;
+import com.jessicaweather.android.gson.Weather;
 import com.jessicaweather.android.util.HttpUtil;
 import com.jessicaweather.android.util.Utility;
 
@@ -107,6 +109,12 @@ public class ChooseAreaFragment extends Fragment {
                 }else if(currentLevel == LEVEL_CITY){
                     selectedCity = cityList.get(position);
                     queryCounties();
+                }else if(currentLevel == LEVEL_COUNTRY){
+                    String weatherId = countryList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
