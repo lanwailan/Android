@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -62,6 +64,8 @@ public class WeatherActivity extends AppCompatActivity {
 
     private ImageView bingPicImg;
 
+    private String weatherCityName;
+
     public SwipeRefreshLayout swipeRefreshLayout;
 
     public DrawerLayout drawerLayout;
@@ -79,7 +83,7 @@ public class WeatherActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
 
         }
-        setContentView(R.layout.activity_weather);
+        setContentView(R.layout.activity_main2);
 
         //init
         weatherLayout = (ScrollView) findViewById(R.id.weather_layout);
@@ -96,8 +100,7 @@ public class WeatherActivity extends AppCompatActivity {
         bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navButton = (Button) findViewById(R.id.nav_button);
-
-
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
@@ -116,19 +119,22 @@ public class WeatherActivity extends AppCompatActivity {
             //if cache exists read the cache
             Weather weather = Utility.handleWeatherResponse(weatherString);
             weatherId = weather.basic.weatherId;
+            weatherCityName = weather.basic.cityName;
             showWeatherInfo(weather);
+            //collapsingToolbarLayout.setTitle(weatherCityName);
         }else {
             // no cache , query service
             weatherId = getIntent().getStringExtra("weather_id");
 
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
+            //collapsingToolbarLayout.setTitle(weatherCityName);
         }
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             @Override
             public void onRefresh(){
                 requestWeather(weatherId);
-            }
+           }
         });
 
         navButton.setOnClickListener(new View.OnClickListener(){
@@ -137,10 +143,15 @@ public class WeatherActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
+
+
+
+
+
     }
 
     /**
-     * qeury weather info by id
+     * query weather info by id
      */
 
     public void requestWeather(final String weatherId){
@@ -220,7 +231,7 @@ public class WeatherActivity extends AppCompatActivity {
         if(weather !=null && "ok".equals(weather.status)){
             String cityName = weather.basic.cityName;
             String updateTime = weather.basic.update.updateTime.split(" ")[1];
-            String degree = weather.now.temperature +"'C";
+            String degree = weather.now.temperature +"℃ ";
             String weatherInfo = weather.now.more.info;
 
             titleCity.setText(cityName);
