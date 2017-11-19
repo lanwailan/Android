@@ -5,14 +5,13 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telecom.Call;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -38,7 +37,7 @@ import java.io.IOException;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class WeatherActivity extends AppCompatActivity {
+public class WeatherActivity extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener{
 
     private ScrollView weatherLayout;
 
@@ -72,18 +71,13 @@ public class WeatherActivity extends AppCompatActivity {
 
     private Button navButton;
 
+    private AppBarLayout appBarLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(Build.VERSION.SDK_INT >= 21 ){
-            View decorView = getWindow().getDecorView();
-            decorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
 
-        }
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_weather);
 
         //init
         weatherLayout = (ScrollView) findViewById(R.id.weather_layout);
@@ -104,6 +98,8 @@ public class WeatherActivity extends AppCompatActivity {
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        appBarLayout = (AppBarLayout) findViewById(R.id.appBar);
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         String weatherString = prefs.getString("weather",null);
@@ -145,9 +141,34 @@ public class WeatherActivity extends AppCompatActivity {
         });
 
 
+    }
 
-
-
+    /**
+     * fix conflict of swipeRefreshLayout and AppBarLayout refresh
+     */
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout,int i){
+        if(i == 0){
+            swipeRefreshLayout.setEnabled(true);
+        }else{
+            swipeRefreshLayout.setEnabled(false);
+        }
+    }
+    /**
+     * fix conflict of swipeRefreshLayout and AppBarLayout refresh
+     */
+    @Override
+    protected void onResume(){
+        super.onResume();
+        appBarLayout.addOnOffsetChangedListener(this);
+    }
+    /**
+     * fix conflict of swipeRefreshLayout and AppBarLayout refresh
+     */
+    @Override
+    protected void onPause(){
+        super.onPause();
+        appBarLayout.removeOnOffsetChangedListener(this);
     }
 
     /**
@@ -231,7 +252,7 @@ public class WeatherActivity extends AppCompatActivity {
         if(weather !=null && "ok".equals(weather.status)){
             String cityName = weather.basic.cityName;
             String updateTime = weather.basic.update.updateTime.split(" ")[1];
-            String degree = weather.now.temperature +"℃ ";
+            String degree = weather.now.temperature +"℃";
             String weatherInfo = weather.now.more.info;
 
             titleCity.setText(cityName);

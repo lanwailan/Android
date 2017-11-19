@@ -144,7 +144,7 @@ public class ChooseAreaFragment extends Fragment {
      */
 
     private void queryProvinces(){
-        titleText.setText("China");
+        titleText.setText("选择位置");
         backButton.setVisibility(View.GONE);
         provinceList = DataSupport.findAll(Provice.class);
         if(provinceList.size() > 0){
