@@ -18,6 +18,12 @@
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
         android:textColor="#424242"/>
+    <ImageView
+        android:id="@+id/weather_info_image"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="25dp" />
 
     <TextView
         android:id="@+id/info_text"

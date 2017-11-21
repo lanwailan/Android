@@ -3,6 +3,7 @@ package com.jessicaweather.android;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.nfc.Tag;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
@@ -12,6 +13,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -33,6 +35,10 @@ import org.litepal.util.BaseUtility;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -73,6 +79,9 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
 
     private AppBarLayout appBarLayout;
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +103,7 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
         bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navButton = (Button) findViewById(R.id.nav_button);
+
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
@@ -266,11 +276,51 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
                 TextView infoText = (TextView) view.findViewById(R.id.info_text);
                 TextView maxText = (TextView) view.findViewById(R.id.max_text);
                 TextView minText = (TextView) view.findViewById(R.id.min_text);
+                ImageView weatherImage = (ImageView) view.findViewById(R.id.weather_info_image);
 
-                dateText.setText(forecast.date);
+                switch (forecast.more.info){
+                    case "多云":
+                        weatherImage.setImageResource(R.drawable.mostly_cloudy_weather);
+                        break;
+                    case "晴":
+                        weatherImage.setImageResource(R.drawable.sun);
+                        break;
+                    case "小雨":
+                        weatherImage.setImageResource(R.drawable.raining_weather);
+                        break;
+                    case "少云":
+                        weatherImage.setImageResource(R.drawable.mostly_sunny_weather_48px);
+                        break;
+                    case "晴间多云":
+                        weatherImage.setImageResource(R.drawable.mostly_sunny_weather_48px);
+                        break;
+                    case "阴":
+                        weatherImage.setImageResource(R.drawable.cloudy_weather);
+                        break;
+                    case "阵雨":
+                        weatherImage.setImageResource(R.drawable.raining_weather);
+                        break;
+                    case "中雨":
+                        weatherImage.setImageResource(R.drawable.raining_weather);
+                        break;
+                    case "大雨":
+                        weatherImage.setImageResource(R.drawable.raining_weather);
+                        break;
+                    case "极端降雨":
+                        weatherImage.setImageResource(R.drawable.raining_weather);
+                        break;
+                    case "小雪":
+                        weatherImage.setImageResource(R.drawable.snowing_snow_weather);
+                        break;
+                    default:
+                        weatherImage.setImageResource(R.drawable.cloudy_weather);
+                        break;
+                }
+
+                dateText.setText("星期"+ getWeek(forecast.date));
                 infoText.setText(forecast.more.info);
-                maxText.setText(forecast.temperature.max);
-                minText.setText(forecast.temperature.min);
+                maxText.setText(forecast.temperature.max + "°");
+                minText.setText(forecast.temperature.min + "°");
                 forecastLayout.addView(view);
             }
             if(weather.aqi != null){
@@ -293,6 +343,46 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
 
 
 
+    }
+
+    /**
+     * week show
+     */
+    private String getWeek(String date){
+        String Week = null;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        try{
+            c.setTime(format.parse(date));
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
+        switch (c.get(Calendar.DAY_OF_WEEK)){
+            case 1:
+                Week = "日";
+                break;
+            case 2:
+                Week="一";
+                break;
+            case 3:
+                Week="二";
+                break;
+            case 4:
+                Week="三";
+                break;
+            case 5:
+                Week="四";
+                break;
+            case 6:
+                Week="五";
+                break;
+            case 7:
+                Week="六";
+                break;
+            default:
+                break;
+        }
+        return Week;
     }
 
 }
