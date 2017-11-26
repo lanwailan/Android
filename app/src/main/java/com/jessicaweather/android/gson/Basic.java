@@ -5,28 +5,31 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Created by lanwailan on 2017/11/15.
  */
-
-/**
- * "basic":{
- *     "city":"Shanghai",
- *     "id":"CN101190401",
- *     "update":{
- *         "loc":"2016-08-09 21:58"
- *     }
- * }
- */
 public class Basic {
 
-    @SerializedName("city")
-    public String cityName;
-
-    @SerializedName("id")
+    @SerializedName("cid")
     public String weatherId;
 
-    public Update update;
+    @SerializedName("location")
+    public String cityName;
 
-    public class Update{
-        @SerializedName("loc")
-        public String updateTime;
-    }
+    @SerializedName("parent_city")
+    public String parentCity;
+
+    @SerializedName("admin_area")
+    public String adminArea;
+
+    @SerializedName("cnty")
+    public String cityCnty;
+
+    @SerializedName("lat")
+    public String cityLat;
+
+    @SerializedName("lon")
+    public String cityLon;
+
+    @SerializedName("tz")
+    public String cityTz;
+
+
 }

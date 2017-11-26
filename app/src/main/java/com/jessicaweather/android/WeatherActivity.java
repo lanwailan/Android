@@ -2,9 +2,7 @@ package com.jessicaweather.android;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.nfc.Tag;
-import android.os.Build;
+
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -13,6 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
@@ -131,7 +131,6 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
         }else {
             // no cache , query service
             weatherId = getIntent().getStringExtra("weather_id");
-
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
             //collapsingToolbarLayout.setTitle(weatherCityName);
@@ -186,11 +185,11 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
      */
 
     public void requestWeather(final String weatherId){
-        String weatherUrl = "http://guolin.tech/api/weather?cityid=" +
+        String weatherUrl = "https://free-api.heweather.com/s6/weather?location=" +
                 weatherId + "&key=b43a7c722cdf4943a0b58fc34455397d";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
-            public void onFailure(okhttp3.Call call, IOException e) {
+            public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
                 runOnUiThread(new Runnable() {
                     @Override
@@ -202,13 +201,14 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
             }
 
             @Override
-            public void onResponse(okhttp3.Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) throws IOException {
+
                 final String responseText = response.body().string();
                 final Weather weather = Utility.handleWeatherResponse(responseText);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(weather !=null && "ok".equals(weather.status)){
+                        if( weather != null && "ok".equals(weather.status)){
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(
                                     WeatherActivity.this).edit();
                             editor.putString("weather",responseText);
@@ -261,9 +261,9 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
 
         if(weather !=null && "ok".equals(weather.status)){
             String cityName = weather.basic.cityName;
-            String updateTime = weather.basic.update.updateTime.split(" ")[1];
-            String degree = weather.now.temperature +"℃";
-            String weatherInfo = weather.now.more.info;
+            String updateTime = weather.update.locTime.split(" ")[1];
+            String degree = weather.now.nowTemp +"℃";
+            String weatherInfo = weather.now.nowWeatherText;
 
             titleCity.setText(cityName);
             titleUpdateTime.setText(updateTime);
@@ -278,7 +278,7 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
                 TextView minText = (TextView) view.findViewById(R.id.min_text);
                 ImageView weatherImage = (ImageView) view.findViewById(R.id.weather_info_image);
 
-                switch (forecast.more.info){
+                switch (forecast.dayWeatherText){
                     case "多云":
                         weatherImage.setImageResource(R.drawable.mostly_cloudy_weather);
                         break;
@@ -318,27 +318,22 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
                 }
 
                 dateText.setText("星期"+ getWeek(forecast.date));
-                infoText.setText(forecast.more.info);
-                maxText.setText(forecast.temperature.max + "°");
-                minText.setText(forecast.temperature.min + "°");
+                infoText.setText(forecast.dayWeatherText);
+                maxText.setText(forecast.maxTemp + "°");
+                minText.setText(forecast.minTemp + "°");
                 forecastLayout.addView(view);
             }
-            if(weather.aqi != null){
-                aqiText.setText(weather.aqi.city.aqi);
-                pm25Text.setText(weather.aqi.city.pm25);
-            }
-            String comfort = "舒适度" + weather.suggestion.comfort.info;
-            String carWash = "洗车指数" +weather.suggestion.carWash.info;
-            String sport = "运动建议" +weather.suggestion.sport.info;
-            comfortText.setText(comfort);
-            carWashText.setText(carWash);
-            sportText.setText(sport);
+
+            aqiText.setText("0");
+            pm25Text.setText("0");
+
+
             weatherLayout.setVisibility(View.VISIBLE);
 
             Intent intent = new Intent(this, AutoUpdateService.class);
             startService(intent);
         }else{
-            Toast.makeText(WeatherActivity.this,"Access Weather info Failed",Toast.LENGTH_SHORT).show();
+            Toast.makeText(WeatherActivity.this,"Access Weather info Failed,oops",Toast.LENGTH_SHORT).show();
         }
 
 
