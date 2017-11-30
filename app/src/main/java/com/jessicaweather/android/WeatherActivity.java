@@ -298,7 +298,7 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
             humidityText.setText(nowHumidity);
             tempText.setText(nowTemp);
             windText.setText(nowWind);
-            sunriseText.setText();
+
 
             forecastLayout.removeAllViews();
 
