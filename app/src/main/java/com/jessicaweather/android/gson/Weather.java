@@ -28,5 +28,8 @@ public class Weather {
     @SerializedName("lifestyle")
     public List<Lifestyle> lifestyleList;
 
+    @SerializedName("air_now_city")
+    public Aircondition aircondition;
+
 
 }

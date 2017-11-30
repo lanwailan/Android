@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.util.Util;
 import com.jessicaweather.android.gson.Forecast;
+import com.jessicaweather.android.gson.Lifestyle;
 import com.jessicaweather.android.gson.Weather;
 import com.jessicaweather.android.service.AutoUpdateService;
 import com.jessicaweather.android.util.HttpUtil;
@@ -79,7 +80,21 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
 
     private AppBarLayout appBarLayout;
 
+    private TextView windText;
 
+    private TextView sunriseText;
+
+    private TextView tempText;
+
+    private TextView humidityText;
+
+    private TextView cwText;
+
+    private TextView drsgText;
+
+    private TextView uvText;
+
+    private TextView spText;
 
 
     @Override
@@ -97,12 +112,17 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
         forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
         aqiText = (TextView) findViewById(R.id.aqi_text);
         pm25Text = (TextView) findViewById(R.id.pm25_text);
-        comfortText = (TextView) findViewById(R.id.comfort_text);
-        carWashText = (TextView) findViewById(R.id.car_wash_text);
-        sportText = (TextView) findViewById(R.id.sport_text);
         bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navButton = (Button) findViewById(R.id.nav_button);
+        windText = (TextView) findViewById(R.id.wind);
+        sunriseText = (TextView) findViewById(R.id.sunrise);
+        tempText = (TextView) findViewById(R.id.temp);
+        humidityText = (TextView) findViewById(R.id.humidity);
+        cwText = (TextView) findViewById(R.id.cw);
+        drsgText = (TextView) findViewById(R.id.drsg);
+        uvText = (TextView) findViewById(R.id.uv);
+        spText = (TextView) findViewById(R.id.sport);
 
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
@@ -185,8 +205,8 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
      */
 
     public void requestWeather(final String weatherId){
-        String weatherUrl = "https://free-api.heweather.com/s6/weather?location=" +
-                weatherId + "&key=b43a7c722cdf4943a0b58fc34455397d";
+        String weatherUrl = "http://jessica.dongyi.link/welcome?location=" +
+                weatherId;
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -264,12 +284,25 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
             String updateTime = weather.update.locTime.split(" ")[1];
             String degree = weather.now.nowTemp +"℃";
             String weatherInfo = weather.now.nowWeatherText;
+            String nowHumidity = weather.now.nowHumidity + "%";
+            String nowTemp = weather.now.nowTemp +"℃";
+            String nowWind = weather.now.windDir +" / " +weather.now.windspd;
+
+            String aqi = weather.aircondition.air_aqi;
+            String pm25 = weather.aircondition.air_pm25;
 
             titleCity.setText(cityName);
             titleUpdateTime.setText(updateTime);
             weatherInfoText.setText(weatherInfo);
             degreeText.setText(degree);
+            humidityText.setText(nowHumidity);
+            tempText.setText(nowTemp);
+            windText.setText(nowWind);
+            sunriseText.setText();
+
             forecastLayout.removeAllViews();
+
+
             for(Forecast forecast:weather.forecastList){
                 View view = LayoutInflater.from(this).inflate(R.layout.forecast_tiem,forecastLayout,false);
                 TextView dateText = (TextView) view.findViewById(R.id.date_text);
@@ -324,9 +357,29 @@ public class WeatherActivity extends AppCompatActivity implements AppBarLayout.O
                 forecastLayout.addView(view);
             }
 
-            aqiText.setText("0");
-            pm25Text.setText("0");
 
+            aqiText.setText(aqi);
+            pm25Text.setText(pm25);
+
+            for(Lifestyle lifestyle:weather.lifestyleList){
+
+                switch (lifestyle.typeSuggestion){
+                    case "cw":
+                        cwText.setText(lifestyle.briefSuggestion);
+                        break;
+                    case "drsg":
+                        drsgText.setText(lifestyle.briefSuggestion);
+                        break;
+                    case "uv":
+                        uvText.setText(lifestyle.briefSuggestion);
+                        break;
+                    case "sport":
+                        spText.setText(lifestyle.briefSuggestion);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             weatherLayout.setVisibility(View.VISIBLE);
 
